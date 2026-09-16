@@ -8,6 +8,8 @@ Useage is simple as adding **ka** after the standard installation script
 curl -fsSL https://pyenv.run | bashka
 ```
 
+https://github.com/user-attachments/assets/f1a55ede-f1a7-4b9f-a512-d395b30bc53f
+
 ## Install
 
 Install via bash. One last time.
@@ -17,10 +19,6 @@ curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/dmtrKova
 ```
 
 > We guarantee absolute safety of this script! [Read it yourself](https://raw.githubusercontent.com/dmtrKovalenko/bashka/main/install.sh)
-
-
-https://github.com/user-attachments/assets/f1a55ede-f1a7-4b9f-a512-d395b30bc53f
-
 
 ## Flags
 
