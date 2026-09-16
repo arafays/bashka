@@ -15,7 +15,7 @@ https://github.com/user-attachments/assets/f1a55ede-f1a7-4b9f-a512-d395b30bc53f
 Install via bash. One last time.
 
 ```sh
-curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/dmtrKovalenko/bashka/main/install.sh | bash
+curl --proto '=https' --tlsv1.2 -fsSL https://bashka.dmtrkovalenko.dev | bash
 ```
 
 > We guarantee absolute safety of this script! [Read it yourself](https://raw.githubusercontent.com/dmtrKovalenko/bashka/main/install.sh)
