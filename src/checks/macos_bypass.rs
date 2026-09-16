@@ -29,7 +29,7 @@ impl Flag for MacosBypass {
                 self.reported = true;
                 return Verdict::Dead(
                     Detail::new(
-                        "shows a password dialog (`osascript … hidden answer`)",
+                        "shows a password dialog (`osascript` with `hidden answer`)",
                         "This is the standard macOS stealer trick: a fake system prompt that captures your login password.",
                     )
                     .fix("Do not run this. No installer needs to collect your password through a dialog box.")
@@ -52,7 +52,7 @@ impl Flag for MacosBypass {
         {
             self.reported = true;
             return red(
-                "strips the Gatekeeper quarantine flag (`xattr … com.apple.quarantine`)",
+                "strips the Gatekeeper quarantine flag (`xattr -d com.apple.quarantine`)",
                 c.span.clone(),
             );
         }
@@ -67,7 +67,7 @@ impl Flag for MacosBypass {
         if name == "defaults" && joined.contains("LSQuarantine") {
             self.reported = true;
             return red(
-                "disables download quarantine (`defaults write … LSQuarantine`)",
+                "disables download quarantine (`defaults write` on `LSQuarantine`)",
                 c.span.clone(),
             );
         }

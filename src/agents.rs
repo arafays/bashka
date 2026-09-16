@@ -12,7 +12,7 @@ pub const AGENTS: &[Agent] = &[
     Agent {
         name: "Codex",
         bin: "codex",
-        args: |p| vec!["exec".into(), p.to_string()],
+        args: |p| vec!["exec".into(), "--skip-git-repo-check".into(), p.to_string()],
     },
     Agent {
         name: "Claude Code",
@@ -107,7 +107,10 @@ mod tests {
     #[test]
     fn agents_use_non_interactive_modes() {
         let by = |n: &str| AGENTS.iter().find(|a| a.name == n).unwrap();
-        assert_eq!((by("Codex").args)("P"), ["exec", "P"]);
+        assert_eq!(
+            (by("Codex").args)("P"),
+            ["exec", "--skip-git-repo-check", "P"]
+        );
         assert_eq!((by("Claude Code").args)("P"), ["-p", "P"]);
         assert_eq!((by("OpenCode").args)("P"), ["run", "P"]);
         assert_eq!((by("pi").args)("P"), ["-p", "P"]);

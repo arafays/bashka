@@ -80,7 +80,7 @@ impl Flag for UnicodeTricks {
                     return Verdict::Red(
                         Detail::new(
                             format!("punycode (internationalized) domain in a URL: {url}"),
-                            "Punycode hosts (`xn--…`) are how look-alike domains impersonate real ones.",
+                            "Punycode hosts (`xn--` prefix) are how look-alike domains impersonate real ones.",
                         )
                         .fix("Decode the host and confirm it is the domain you expect.")
                         .at(u.span.clone()),

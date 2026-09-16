@@ -164,10 +164,7 @@ impl Prompter {
 
     /// Runs an AI agent with the review prompt, on the terminal.
     pub fn run_agent(&mut self, agent: &crate::agents::Agent, prompt: &str) {
-        self.say(&format!(
-            "{} launching {} …\n",
-            self.icons.launch, agent.name
-        ));
+        self.say(&format!("{} launching {}\n", self.icons.launch, agent.name));
         if !Self::on_tty(agent.bin, &(agent.args)(prompt)) {
             self.say(&format!(
                 "{} could not launch {}\n",

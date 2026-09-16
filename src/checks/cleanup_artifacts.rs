@@ -49,7 +49,7 @@ register_flag! {
     id: "cleanup_artifacts",
     kind: Green,
     category: Path,
-    description: "Removes temporary files via `trap … EXIT` or `rm` of `mktemp` paths",
+    description: "Removes temporary files via `trap <cmd> EXIT` or `rm` of `mktemp` paths",
     config: NoConfig,
     build: |_cfg, _shared| CleanupArtifacts::default(),
 }

@@ -82,7 +82,7 @@ impl Flag for UnsafeRm {
                         format!("`rm -rf` on `{t}` where `${var}` may be empty"),
                         "If the variable is unset or empty, the path collapses to `/` or a parent directory and the recursive delete runs far wider than intended.",
                     )
-                    .fix("Guard it: `rm -rf \"${{{var}:?}}/…\"`, or `set -u` at the top of the script.")
+                    .fix("Guard it: `rm -rf \"${{{var}:?}}/subdir\"`, or `set -u` at the top of the script.")
                     .at(c.span.clone()),
                 );
             }

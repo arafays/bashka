@@ -26,6 +26,9 @@ const GENERIC: &[&str] = &[
     "releases",
     "release",
     "www",
+    "dev",
+    "api",
+    "cdn",
     "sh",
     "cli",
     "app",
@@ -122,7 +125,10 @@ const NOT_NAME: &[&str] = &[
     "SHA", "EXT", "PLATFORM", "TARGET", "PREFIX", "ROOT", "BASE", "USER", "OWNER", "ORG",
 ];
 
-/// The name to record: explicit override, else binaries, URL, script, invocation arguments.
+/// The name to record: explicit override, else the binaries that landed, the URL path (a GitHub
+/// repo or `get.pnpm.io/install.sh`), what the script says about itself, the invocation
+/// arguments, and only then the host name. A domain label such as `dev` in `dev.meta.ai` is the
+/// weakest evidence, so it never beats a binary or a `command_name="muse"` in the script.
 pub fn derive(
     override_name: Option<&str>,
     binaries: &[PathBuf],
@@ -135,9 +141,10 @@ pub fn derive(
         return Some(n);
     }
     from_binaries(binaries, bin_dirs)
-        .or_else(|| url.and_then(from_url))
+        .or_else(|| url.and_then(from_url_path))
         .or_else(|| script.and_then(from_script))
         .or_else(|| from_args(shell_args))
+        .or_else(|| url.and_then(from_url_host))
 }
 
 /// Generic installers take the project on the command line: `-- --git cantino/mcfly`.
@@ -168,24 +175,46 @@ pub fn takes_arguments(ctx: &Ctx) -> bool {
 
 /// What can be known before the run: URL first, then the script itself.
 pub fn static_name(url: Option<&str>, script: &Ctx) -> Option<String> {
-    url.and_then(from_url).or_else(|| from_script(script))
+    url.and_then(from_url_path)
+        .or_else(|| from_script(script))
+        .or_else(|| url.and_then(from_url_host))
 }
 
-/// The single binary the installer put on a bin directory, or the single binary overall.
+/// The single binary the installer put on a bin directory, or the single binary overall. Several
+/// binaries still name the package when one is the common stem of the rest: `muse` next to
+/// `muse-bin-1.3.0` is `muse`. Dotfiles (`.muse-version`) are bookkeeping, never the name.
 pub fn from_binaries(binaries: &[PathBuf], bin_dirs: &BTreeSet<PathBuf>) -> Option<String> {
+    let visible = |b: &&PathBuf| {
+        !b.file_name()
+            .is_some_and(|n| n.to_string_lossy().starts_with('.'))
+    };
     let in_bin: Vec<&PathBuf> = binaries
         .iter()
+        .filter(visible)
         .filter(|b| b.parent().is_some_and(|p| bin_dirs.contains(p)))
         .collect();
-    let pick = match in_bin.as_slice() {
-        [only] => Some(*only),
-        [] => match binaries {
-            [only] => Some(only),
-            _ => None,
-        },
-        _ => None,
+    let candidates: Vec<&PathBuf> = if in_bin.is_empty() {
+        binaries.iter().filter(visible).collect()
+    } else {
+        in_bin
     };
-    pick.and_then(|p| file_stem_name(p))
+    match candidates.as_slice() {
+        [] => None,
+        [only] => file_stem_name(only),
+        many => {
+            let names: Vec<String> = many
+                .iter()
+                .filter_map(|p| p.file_name().map(|n| n.to_string_lossy().into_owned()))
+                .collect();
+            let shortest = names.iter().min_by_key(|n| n.len())?;
+            let is_stem = names.iter().all(|n| {
+                n == shortest
+                    || n.strip_prefix(shortest.as_str())
+                        .is_some_and(|rest| rest.starts_with(['-', '_', '.']))
+            });
+            is_stem.then(|| accept(shortest)).flatten()
+        }
+    }
 }
 
 fn file_stem_name(p: &Path) -> Option<String> {
@@ -198,6 +227,7 @@ fn file_stem_name(p: &Path) -> Option<String> {
 }
 
 /// `https://get.pnpm.io/install.sh` -> `pnpm`; `https://claude.anthropic.ai` -> `claude`.
+#[cfg(test)]
 pub fn from_url(url: &str) -> Option<String> {
     from_url_path(url).or_else(|| from_url_host(url))
 }
@@ -573,14 +603,52 @@ mod tests {
             d(None, &one, url, Some(&ctx), none).as_deref(),
             Some("demo")
         );
-        assert_eq!(d(None, &[], url, Some(&ctx), none).as_deref(), Some("mise"));
+        // A telling URL path beats the script; a bare host does not.
+        let pathy = Some("https://astral.sh/uv/install.sh");
+        assert_eq!(d(None, &[], pathy, Some(&ctx), none).as_deref(), Some("uv"));
+        assert_eq!(
+            d(None, &[], url, Some(&ctx), none).as_deref(),
+            Some("zoxide")
+        );
+        assert_eq!(d(None, &[], url, None, none).as_deref(), Some("mise"));
         assert_eq!(
             d(None, &[], None, Some(&ctx), none).as_deref(),
             Some("zoxide")
         );
+        // dev.meta.ai/install.sh: the script's `command_name` wins over the `dev` label.
+        let muse = parse("command_name=\"muse\"\ninstall_dir=\"$HOME/.local/bin\"").unwrap();
+        let meta = Some("https://dev.meta.ai/install.sh");
+        assert_eq!(
+            d(None, &[], meta, Some(&muse), none).as_deref(),
+            Some("muse")
+        );
+        // With nothing better, the host still names it, skipping the generic `dev` label.
+        assert_eq!(d(None, &[], meta, None, none).as_deref(), Some("meta"));
         let args = ["--git".to_string(), "cantino/mcfly".to_string()];
         assert_eq!(d(None, &[], None, None, &args).as_deref(), Some("mcfly"));
         assert_eq!(d(None, &[], None, None, none), None);
+    }
+}
+
+#[cfg(test)]
+mod binaries {
+    use super::*;
+    use std::collections::BTreeSet;
+
+    #[test]
+    fn several_binaries_sharing_a_stem_name_the_package() {
+        let bins: BTreeSet<PathBuf> = [PathBuf::from("/h/.local/bin")].into();
+        let p = |s: &str| PathBuf::from(s);
+        let muse = [
+            p("/h/.local/bin/muse"),
+            p("/h/.local/bin/muse-bin-1.3.0-R3057.1"),
+            p("/h/.local/bin/.muse-version"),
+        ];
+        assert_eq!(from_binaries(&muse, &bins).as_deref(), Some("muse"));
+        let unrelated = [p("/h/.local/bin/foo"), p("/h/.local/bin/bar")];
+        assert_eq!(from_binaries(&unrelated, &bins), None);
+        let hidden_only = [p("/h/.local/bin/.cache")];
+        assert_eq!(from_binaries(&hidden_only, &bins), None);
     }
 }
 
@@ -597,6 +665,7 @@ mod fixture_names {
             ("fnm.sh", "fnm"),
             ("homebrew.sh", "brew"),
             ("mise.sh", "mise"),
+            ("muse.sh", "muse"),
             ("nix.sh", "nix"),
             ("nvm.sh", "nvm"),
             ("pnpm.sh", "pnpm"),

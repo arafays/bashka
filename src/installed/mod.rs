@@ -81,7 +81,7 @@ impl Invocation {
         let fetch = match (&self.fetcher, &self.source_url) {
             (Some(f), _) => f.clone(),
             (None, Some(u)) => format!("curl -fsSL {u}"),
-            (None, None) => "…".into(),
+            (None, None) => "<unknown fetch command>".into(),
         };
         let mut cmd = format!("{fetch} | bashka");
         for o in &self.bashka_opts {
@@ -294,7 +294,7 @@ pub fn list(long: bool) -> Result<String> {
             "{}\n",
             paint(
                 ui::DIM,
-                "nothing installed through bashka yet (run `curl … | bashka` to add one)"
+                "nothing installed through bashka yet (run `curl <url> | bashka` to add one)"
             )
         ));
     }

@@ -6,7 +6,7 @@ use std::path::PathBuf;
 #[command(
     name = "bashka",
     version,
-    about = "A safety guard for `curl … | bash`: analyzes the script before it runs"
+    about = "A safety guard for `curl <url> | bash`: analyzes the script before it runs"
 )]
 pub struct Cli {
     #[command(flatten)]
@@ -43,7 +43,7 @@ pub struct Options {
     /// Config file (default: ~/.config/bashka/config.toml).
     #[arg(long, value_name = "PATH")]
     pub config: Option<PathBuf>,
-    /// Name to record the installed software under (default: derived from the source URL).
+    /// Name to record the installed software under (default: the installed binary, then the URL path, the script, and last the host).
     #[arg(long, value_name = "NAME")]
     pub name: Option<String>,
 }

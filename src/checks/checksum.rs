@@ -55,7 +55,7 @@ register_flag! {
     id: "checksum",
     kind: Green,
     category: Remote,
-    description: "Green: compares a checksum of downloads (sha256sum -c, $(shasum …)); yellow: downloads are unverified",
+    description: "Green: compares a checksum of downloads (sha256sum -c, $(shasum <file>)); yellow: downloads are unverified",
     config: NoConfig,
     build: |_cfg, shared| Checksum { shared: shared.clone(), reported: false, signed: false },
 }
