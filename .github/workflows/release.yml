@@ -31,10 +31,18 @@ jobs:
         with:
           tool: cargo-edit
       - id: next
-        # Cargo.toml holds the last released version (the release job commits the bump).
+        # Cargo.toml holds the last released version (the release job commits the bump). Tags that
+        # already exist (releases cut from rewritten history) are skipped, so a rewrite of main
+        # never wedges the pipeline.
         run: |
+          current() { cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version'; }
           cargo set-version --bump minor
-          version="$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')"
+          version="$(current)"
+          while git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null 2>&1; do
+            echo "v$version is already tagged on origin, skipping"
+            cargo set-version --bump minor
+            version="$(current)"
+          done
           echo "version=$version" >>"$GITHUB_OUTPUT"
           echo "tag=v$version" >>"$GITHUB_OUTPUT"
           echo "next release: v$version"
@@ -175,8 +183,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Cargo.toml Cargo.lock install.sh
           git commit -m "chore: release ${{ needs.version.outputs.tag }} [skip ci]"
-          git tag -a "${{ needs.version.outputs.tag }}" -m "bashka ${{ needs.version.outputs.tag }}"
+          # Rebase first: commits pushed to main meanwhile must end up below the tag, not beside it.
           git pull --rebase origin main
+          git tag -a "${{ needs.version.outputs.tag }}" -m "bashka ${{ needs.version.outputs.tag }}"
           git push origin HEAD:main
           git push origin "${{ needs.version.outputs.tag }}"
 
