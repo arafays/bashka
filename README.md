@@ -18,6 +18,10 @@ curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/dmtrKova
 
 > We guarantee absolute safety of this script! [Read it yourself](https://raw.githubusercontent.com/dmtrKovalenko/bashka/main/install.sh)
 
+
+https://github.com/user-attachments/assets/f1a55ede-f1a7-4b9f-a512-d395b30bc53f
+
+
 ## Flags
 
 Findings come in four kinds: 💀 **💀** (critically malicious, blocks hard), 🚩 **red** (dangerous),
