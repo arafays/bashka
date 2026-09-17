@@ -96,6 +96,7 @@ pub enum Cmd {
         name: String,
     },
     /// Remove every binary and directory a recorded install created, and forget the package.
+    #[command(alias = "uninstall")]
     Remove {
         /// Package name as shown by `bashka list`.
         name: String,
