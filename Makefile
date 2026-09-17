@@ -30,6 +30,7 @@ next-version:
 
 TARGETS := x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu x86_64-unknown-linux-musl \
            aarch64-unknown-linux-musl aarch64-linux-android x86_64-apple-darwin aarch64-apple-darwin
+FORMULA := Formula/bashka.rb
 pin-installer:
 	@test -n "$(VERSION)" && test -n "$(BINARIES_DIR)" || { echo "usage: make pin-installer VERSION=0.3.0 BINARIES_DIR=./binaries"; exit 1; }
 	@for t in $(TARGETS); do test -f "$(BINARIES_DIR)/bashka-$$t" || { echo "missing $(BINARIES_DIR)/bashka-$$t"; exit 1; }; done
@@ -41,3 +42,13 @@ pin-installer:
 	  grep -q "^$$var=\"$$sha\"$$" install.sh || { echo "install.sh has no $$var line"; exit 1; }; \
 	done
 	@echo "install.sh pinned to v$(VERSION)"
+	@sed -i -e 's|^\(  version \)".*"|\1"$(VERSION)"|' \
+	        -e 's|/releases/download/v[^/]*/|/releases/download/v$(VERSION)/|' $(FORMULA)
+	@for t in $(TARGETS); do \
+	  grep -q "bashka-$$t\"" $(FORMULA) || continue; \
+	  sha="$$(sha256sum "$(BINARIES_DIR)/bashka-$$t" | cut -d' ' -f1)"; \
+	  sed -i -e "/bashka-$$t\"/{n;s|sha256 \".*\"|sha256 \"$$sha\"|;}" $(FORMULA); \
+	  grep -q "sha256 \"$$sha\"" $(FORMULA) || { echo "$(FORMULA) has no sha256 line after bashka-$$t"; exit 1; }; \
+	done
+	@! command -v ruby >/dev/null || ruby -c $(FORMULA) >/dev/null
+	@echo "$(FORMULA) pinned to v$(VERSION)"

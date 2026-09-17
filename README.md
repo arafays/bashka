@@ -20,6 +20,33 @@ curl --proto '=https' --tlsv1.2 -fsSL https://bashka.dmtrkovalenko.dev | bash
 
 > We guarantee absolute safety of this script! [Read it yourself](https://raw.githubusercontent.com/dmtrKovalenko/bashka/main/install.sh)
 
+Or skip bash entirely. All of these install the same checksummed release binaries:
+
+**Homebrew** (macOS and Linux). The tap lives in this repo, so it is tapped by URL:
+
+```sh
+brew tap dmtrKovalenko/bashka https://github.com/dmtrKovalenko/bashka
+brew install bashka
+```
+
+**Cargo** — from [crates.io](https://crates.io/crates/bashka), or prebuilt via [cargo-binstall](https://github.com/cargo-bins/cargo-binstall):
+
+```sh
+cargo install bashka          # builds from source
+cargo binstall bashka         # downloads the release binary
+```
+
+**mise**
+
+```sh
+mise use -g ubi:dmtrKovalenko/bashka   # prebuilt binary from GitHub releases
+mise use -g cargo:bashka               # or build from crates.io
+```
+
+**Manual**: grab `bashka-<target>` from the [releases page](https://github.com/dmtrKovalenko/bashka/releases), check it against the `.sha256` next to it, and drop it on your `PATH`.
+
+Homebrew, cargo and mise users update through those tools; `bashka update bashka` only applies to the `install.sh` route.
+
 ## Flags
 
 Findings come in four kinds: 💀 **💀** (critically malicious, blocks hard), 🚩 **red** (dangerous),
