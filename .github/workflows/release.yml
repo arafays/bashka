@@ -1,8 +1,8 @@
 name: Release
 
 # Every push to main becomes a release: the minor version in Cargo.toml is bumped (cargo-edit), binaries are built for
-# Linux (glibc and musl), Android and macOS, install.sh is pinned to their checksums, and the bump is committed
-# back to main under a `vX.Y.0` tag. Pull requests only build and test.
+# Linux (glibc and musl), Android and macOS, install.sh and Formula/bashka.rb are pinned to their checksums, the bump is committed
+# back to main under a `vX.Y.0` tag and the crate is published. Pull requests only build and test.
 
 on:
   push:
@@ -151,6 +151,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write # crates.io trusted publishing (OIDC)
     steps:
       - uses: actions/checkout@v5
         with:
@@ -176,12 +177,13 @@ jobs:
           cargo set-version "${{ needs.version.outputs.version }}"
           make pin-installer VERSION="${{ needs.version.outputs.version }}" BINARIES_DIR=binaries
           bash -n install.sh
+          ruby -c Formula/bashka.rb
 
       - name: Commit and tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Cargo.toml Cargo.lock install.sh
+          git add Cargo.toml Cargo.lock install.sh Formula/bashka.rb
           git commit -m "chore: release ${{ needs.version.outputs.tag }} [skip ci]"
           # Rebase first: commits pushed to main meanwhile must end up below the tag, not beside it.
           git pull --rebase origin main
@@ -203,3 +205,13 @@ jobs:
             curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/dmtrKovalenko/bashka/main/install.sh | bash
             ```
             `install.sh` on `main` is pinned to the checksums of these binaries. Already have bashka? `bashka update bashka`.
+            Also: `brew install dmtrKovalenko/bashka/bashka`, `cargo install bashka`, `cargo binstall bashka`, `mise use -g ubi:dmtrKovalenko/bashka`.
+
+      # Trusted publishing: crates.io > bashka > Settings > Trusted Publishing must list this repo and
+      # workflow file. The step runs last so a misconfiguration never blocks the GitHub release.
+      - uses: rust-lang/crates-io-auth-action@v1
+        id: crates-io-auth
+      - name: Publish to crates.io
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.crates-io-auth.outputs.token }}
+        run: cargo publish --locked

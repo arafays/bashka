@@ -2,6 +2,19 @@
 name = "bashka"
 version = "0.5.0"
 edition = "2024"
+description = "A safety guard for `curl <url> | bash`: analyzes the script before it runs"
+license = "MIT"
+repository = "https://github.com/dmtrKovalenko/bashka"
+homepage = "https://github.com/dmtrKovalenko/bashka"
+readme = "README.md"
+keywords = ["security", "bash", "installer", "curl", "cli"]
+categories = ["command-line-utilities", "development-tools"]
+exclude = ["docs/", "scripts/", "installers.toml", "Formula/", ".github/", "PRD.md"]
+
+# cargo binstall bashka: release assets are bare binaries named bashka-<target>.
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{ target }"
+pkg-fmt = "bin"
 
 [dependencies]
 annotate-snippets = "0.12.16"

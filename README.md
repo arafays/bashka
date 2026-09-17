@@ -20,6 +20,33 @@ curl --proto '=https' --tlsv1.2 -fsSL https://bashka.dmtrkovalenko.dev | bash
 
 > We guarantee absolute safety of this script! [Read it yourself](https://raw.githubusercontent.com/dmtrKovalenko/bashka/main/install.sh)
 
+Or skip bash entirely. The following methods install a release binary or build from source:
+
+**Homebrew** (macOS and Linux). The tap lives in this repo, so it is tapped by URL:
+
+```sh
+brew tap dmtrKovalenko/bashka https://github.com/dmtrKovalenko/bashka
+brew install bashka
+```
+
+**Cargo**: from [crates.io](https://crates.io/crates/bashka), or prebuilt via [cargo-binstall](https://github.com/cargo-bins/cargo-binstall):
+
+```sh
+cargo install bashka          # builds from source
+cargo binstall bashka         # downloads the release binary
+```
+
+**mise**
+
+```sh
+mise use -g ubi:dmtrKovalenko/bashka   # prebuilt binary from GitHub releases
+mise use -g cargo:bashka               # or build from crates.io
+```
+
+**Manual**: grab `bashka-<target>` from the [releases page](https://github.com/dmtrKovalenko/bashka/releases), check it against the `.sha256` next to it, and drop it on your `PATH`.
+
+However you installed it, bashka manages itself: `bashka update bashka` re-runs the installer and `bashka remove bashka` (or `bashka uninstall bashka`) deletes the binary, the config and the install registry.
+
 ## Flags
 
 Findings come in four kinds: 💀 **💀** (critically malicious, blocks hard), 🚩 **red** (dangerous),
@@ -78,7 +105,7 @@ Some of the additional commands
 bashka list [--long]                 # table of software installed through bashka
 bashka info <name>                   # everything recorded about one package
 bashka update <name>                 # re-fetch the recorded installer and run it again
-bashka remove <name> [--dry-run]     # delete every recorded binary and created directory, forget the package
+bashka remove <name> [--dry-run]     # delete every recorded binary and created directory, forget the package (alias: uninstall)
 bashka flags                         # list every registered flag with its options
 bashka config init                   # print default configuration
 ```
