@@ -3,28 +3,28 @@
 class Bashka < Formula
   desc "Safety guard for `curl … | bash`: analyzes the script before it runs"
   homepage "https://github.com/dmtrKovalenko/bashka"
-  version "0.6.0"
+  version "0.7.0"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/dmtrKovalenko/bashka/releases/download/v0.6.0/bashka-aarch64-apple-darwin"
-      sha256 "b80e97c679ae4324ea2eef0f8f05f4a274b551efc861490f35ce72070c68803c"
+      url "https://github.com/dmtrKovalenko/bashka/releases/download/v0.7.0/bashka-aarch64-apple-darwin"
+      sha256 "72e975ab07421524bee73db8f54f00d2902a176e912a232c6b485d8588f77512"
     end
     on_intel do
-      url "https://github.com/dmtrKovalenko/bashka/releases/download/v0.6.0/bashka-x86_64-apple-darwin"
-      sha256 "a31326c21ad844b1973bc91a137d7a3f822ab3e208cb6bdf65b46e7b0d951da6"
+      url "https://github.com/dmtrKovalenko/bashka/releases/download/v0.7.0/bashka-x86_64-apple-darwin"
+      sha256 "a052c6e059a1eb2e00e744a9a82138daf07541c59f9c546dbeae98866fc33d64"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/dmtrKovalenko/bashka/releases/download/v0.6.0/bashka-aarch64-unknown-linux-musl"
-      sha256 "c78460ca58550d89bb3e6dcc5e3d355ae396d53061aa77cb445a79546baeb142"
+      url "https://github.com/dmtrKovalenko/bashka/releases/download/v0.7.0/bashka-aarch64-unknown-linux-musl"
+      sha256 "15cd194cbeaaaf6d6e89a2b8c3dc498b7709800af5c1aeded1eea3b27717adf3"
     end
     on_intel do
-      url "https://github.com/dmtrKovalenko/bashka/releases/download/v0.6.0/bashka-x86_64-unknown-linux-musl"
-      sha256 "9809d918eceadc47f886d58e88524bfec6c1734b55bf4598cbab672c65999340"
+      url "https://github.com/dmtrKovalenko/bashka/releases/download/v0.7.0/bashka-x86_64-unknown-linux-musl"
+      sha256 "6f6a6d6139624dd46264af1a55025de57df9d8920dafbc99503743f68917eb6d"
     end
   end
 
