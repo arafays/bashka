@@ -109,6 +109,15 @@ bashka update <name>                 # re-fetch the recorded installer and run i
 bashka remove <name> [--dry-run]     # delete every recorded binary and created directory, forget the package (alias: uninstall)
 bashka flags                         # list every registered flag with its options
 bashka config init                   # print default configuration
+bashka completions <shell>           # print a shell completion script (bash, zsh, fish, powershell, elvish)
+```
+
+## Shell completions
+
+```sh
+bashka completions fish > ~/.config/fish/completions/bashka.fish
+bashka completions zsh   > ~/.zfunc/_bashka                            # ~/.zfunc must be on $fpath
+bashka completions bash  > ~/.local/share/bash-completion/completions/bashka
 ```
 
 
