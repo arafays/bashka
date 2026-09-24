@@ -115,8 +115,12 @@ bashka completions <shell>           # print a shell completion script (bash, zs
 ## Shell completions
 
 ```sh
+mkdir -p ~/.config/fish/completions
+mkdir -p ~/.zfunc                                                    # ~/.zfunc must be on $fpath
+mkdir -p ~/.local/share/bash-completion/completions
+
 bashka completions fish > ~/.config/fish/completions/bashka.fish
-bashka completions zsh   > ~/.zfunc/_bashka                            # ~/.zfunc must be on $fpath
+bashka completions zsh   > ~/.zfunc/_bashka
 bashka completions bash  > ~/.local/share/bash-completion/completions/bashka
 ```
 
